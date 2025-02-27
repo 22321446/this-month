@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>This Month - Habit Tracker</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Arial', sans-serif;
+    }
+    
+    body {
+      background-color: #1a1a1a;
+      color: #ffffff;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    
+    header {
+      background-color: #252525;
+      border-radius: 10px;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    
+    .app-title {
+      font-size: 28px;
+      font-weight: bold;
+    }
+    
+    .app-subtitle {
+      color: #aaaaaa;
+      font-size: 16px;
+      margin-left: 20px;
+    }
+    
+    .calendar-header {
+      background-color: #333333;
+      border-radius: 5px;
+      padding: 10px;
+      text-align: center;
+      margin-bottom: 10px;
+      font-size: 22px;
+      font-weight: bold;
+    }
+    
+    .weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    
+    .weekday {
+      text-align: center;
+      color: #888888;
+      font-size: 14px;
+    }
+    
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 10px;
+    }
+    
+    .day {
+      background-color: #252525;
+      border-radius: 5px;
+      min-height: 120px;
+      padding: 10px;
+      position: relative;
+    }
+    
+    .day-number {
+      margin-bottom: 10px;
+      font-size: 16px;
+    }
+    
+    .day.current {
+      background-color: #303060;
+    }
+    
+    .day.different-month {
+      opacity: 0.5;
+    }
+    
+    .task {
+      background-color: #404080;
+      border-radius: 3px;
+      padding: 5px;
+      margin-bottom: 5px;
+      font-size: 12px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+    }
+    
+    .task.completed {
+      text-decoration: line-through;
+      opacity: 0.7;
+    }
+    
+    .add-task {
+      background-color: transparent;
+      border: 1px dashed #555555;
+      color: #aaaaaa;
+      border-radius: 3px;
+      padding: 5px;
+      margin-top: 5px;
+      text-align: center;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    
+    .task-input {
+      width: 100%;
+      background-color: #333333;
+      border: none;
+      color: white;
+      padding: 5px;
+      border-radius: 3px;
+      font-size: 12px;
+    }
+    
+    .footer {
+      background-color: #303030;
+      border-radius: 5px;
+      padding: 15px;
+      text-align: center;
+      margin-top: 20px;
+      font-style: italic;
+    }
+    
+    .bot-helper {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 60px;
+      height: 60px;
+      background-color: #4488ff;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      font-size: 24px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+    
+    .notification {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      width: 20px;
+      height: 20px;
+      background-color: #ff4488;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 12px;
+    }
+    
+    .add-button {
+      position: fixed;
+      bottom: 30px;
+      left: 30px;
+      width: 50px;
+      height: 50px;
+      background-color: #44cc44;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      font-size: 30px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+    
+    .bot-message {
+      display: none;
+      position: fixed;
+      bottom: 100px;
+      right: 30px;
+      width: 250px;
+      background-color: #333333;
+      border-radius: 10px;
+      padding: 15px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+    
+    .bot-message:after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      right: 20px;
+      width: 0;
+      height: 0;
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      border-top: 10px solid #333333;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <span class="app-title">This Month</span>
+        <span class="app-subtitle">Build Better Habits, One Day at a Time</span>
+      </div>
+    </header>
+    
+    <div class="calendar-header" id="monthYear">February 2025</div>
+    
+    <div class="weekdays">
+      <div class="weekday">SUN</div>
+      <div class="weekday">MON</div>
+      <div class="weekday">TUE</div>
+      <div class="weekday">WED</div>
+      <div class="weekday">THU</div>
+      <div class="weekday">FRI</div>
+      <div class="weekday">SAT</div>
+    </div>
+    
+    <div class="calendar-grid" id="calendarGrid">
+      <!-- Calendar days will be populated by JavaScript -->
+    </div>
+    
+    <div class="footer" id="quoteDisplay">
+      "Small daily improvements are the key to staggering long-term results."
+    </div>
+  </div>
+  
+  <div class="bot-helper" id="botHelper">
+    😊
+    <div class="notification">1</div>
+  </div>
+  
+  <div class="bot-message" id="botMessage">
+    Great job completing your tasks today! Keep up the good work!
+  </div>
+  
+  <div class="add-button" id="addButton">+</div>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Sample motivational quotes
+      const quotes = [
+        "Small daily improvements are the key to staggering long-term results.",
+        "Habits form the foundation of achievement.",
+        "What you do every day matters more than what you do once in a while.",
+        "Success is the sum of small efforts repeated day in and day out.",
+        "The only bad workout is the one that didn't happen.",
+        "Don't count the days, make the days count.",
+        "Your future is created by what you do today, not tomorrow.",
+        "Motivation gets you started. Habit keeps you going."
+      ];
+      
+      // Get today's date
+      const today = new Date();
+      const currentMonth = today.getMonth();
+      const currentYear = today.getFullYear();
+      const currentDay = today.getDate();
+      
+      // Update header with current month and year
+      const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+      document.getElementById('monthYear').textContent = `${monthNames[currentMonth]} ${currentYear}`;
+      
+      // Generate calendar
+      generateCalendar(currentMonth, currentYear);
+      
+      // Change quote every day
+      const quoteIndex = (currentDay % quotes.length);
+      document.getElementById('quoteDisplay').textContent = quotes[quoteIndex];
+      
+      // Bot helper functionality
+      const botHelper = document.getElementById('botHelper');
+      const botMessage = document.getElementById('botMessage');
+      
+      botHelper.addEventListener('click', function() {
+        if (botMessage.style.display === 'block') {
+          botMessage.style.display = 'none';
+        } else {
+          botMessage.style.display = 'block';
+          // Remove notification after click
+          const notification = document.querySelector('.notification');
+          if (notification) {
+            notification.style.display = 'none';
+          }
+        }
+      });
+      
+      function generateCalendar(month, year) {
+        const calendarGrid = document.getElementById('calendarGrid');
+        calendarGrid.innerHTML = '';
+        
+        // Get first day of month
+        const firstDay = new Date(year, month, 1);
+        const startingDay = firstDay.getDay(); // 0 = Sunday, 1 = Monday, etc.
+        
+        // Get number of days in month
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        
+        // Get days from previous month
+        const prevMonthDays = new Date(year, month, 0).getDate();
+        
+        // Generate calendar cells
+        let dayCounter = 1;
+        let nextMonthDay = 1;
+        
+        // Create 6 rows to ensure all months fit
+        for (let row = 0; row < 6; row++) {
+          for (let col = 0; col < 7; col++) {
+            const dayElement = document.createElement('div');
+            dayElement.className = 'day';
+            
+            // Previous month days
+            if (row === 0 && col < startingDay) {
+              const prevMonthDate = prevMonthDays - (startingDay - col - 1);
+              dayElement.innerHTML = `
+                <div class="day-number">${prevMonthDate}</div>
+              `;
+              dayElement.classList.add('different-month');
+            }
+            // Current month days
+            else if (dayCounter <= daysInMonth) {
+              dayElement.innerHTML = `
+                <div class="day-number">${dayCounter}</div>
+                <div class="day-tasks"></div>
+                <div class="add-task">+ Add task</div>
+              `;
+              
+              // Highlight current day
+              if (dayCounter === currentDay && month === today.getMonth() && year === today.getFullYear()) {
+                dayElement.classList.add('current');
+                
+                // Add sample tasks to current day
+                setTimeout(() => {
+                  const tasksContainer = dayElement.querySelector('.day-tasks');
+                  const sampleTasks = [
+                    { text: 'Morning run 🏃', completed: true },
+                    { text: 'Read 30 mins 📚', completed: false }
+                  ];
+                  
+                  sampleTasks.forEach(task => {
+                    addTaskToDay(tasksContainer, task.text, task.completed);
+                  });
+                }, 100);
+              }
+              
+              dayCounter++;
+            }
+            // Next month days
+            else {
+              dayElement.innerHTML = `
+                <div class="day-number">${nextMonthDay}</div>
+              `;
+              dayElement.classList.add('different-month');
+              nextMonthDay++;
+            }
+            
+            calendarGrid.appendChild(dayElement);
+          }
+        }
+        
+        // Add event listeners to "Add task" buttons
+        document.querySelectorAll('.add-task').forEach(button => {
+          button.addEventListener('click', function() {
+            const dayElement = this.parentElement;
+            const tasksContainer = dayElement.querySelector('.day-tasks');
+            
+            // Hide the add button temporarily
+            this.style.display = 'none';
+            
+            // Create input field
+            const inputElement = document.createElement('input');
+            inputElement.className = 'task-input';
+            inputElement.placeholder = 'Enter task...';
+            dayElement.insertBefore(inputElement, this);
+            
+            // Focus on input
+            inputElement.focus();
+            
+            // Handle task creation
+            inputElement.addEventListener('keypress', function(e) {
+              if (e.key === 'Enter' && this.value.trim() !== '') {
+                addTaskToDay(tasksContainer, this.value.trim());
+                
+                // Remove input and show add button again
+                this.remove();
+                button.style.display = 'block';
+              }
+            });
+            
+            // Handle blur event
+            inputElement.addEventListener('blur', function() {
+              if (this.value.trim() !== '') {
+                addTaskToDay(tasksContainer, this.value.trim());
+              }
+              
+              // Remove input and show add button again
+              this.remove();
+              button.style.display = 'block';
+            });
+          });
+        });
+      }
+      
+      function addTaskToDay(container, text, completed = false) {
+        const taskElement = document.createElement('div');
+        taskElement.className = 'task';
+        if (completed) {
+          taskElement.classList.add('completed');
+        }
+        
+        taskElement.innerHTML = `
+          <span>${text}</span>
+          <span>✓</span>
+        `;
+        
+        // Toggle completion status on click
+        taskElement.addEventListener('click', function() {
+          this.classList.toggle('completed');
+          
+          // Show bot message when task is completed
+          if (this.classList.contains('completed')) {
+            document.getElementById('botMessage').textContent = `Great job completing "${text}"! Keep it up!`;
+            document.getElementById('botMessage').style.display = 'block';
+            
+            // Hide message after 3 seconds
+            setTimeout(() => {
+              document.getElementById('botMessage').style.display = 'none';
+            }, 3000);
+          }
+        });
+        
+        container.appendChild(taskElement);
+      }
+      
+      // Add Button Functionality
+      document.getElementById('addButton').addEventListener('click', function() {
+        // Find the current day and trigger its add task button
+        const currentDayElement = document.querySelector('.day.current');
+        if (currentDayElement) {
+          const addTaskButton = currentDayElement.querySelector('.add-task');
+          if (addTaskButton) {
+            addTaskButton.click();
+          }
+        }
+      });
+    });
+  </script>
+</body>
+</html>
